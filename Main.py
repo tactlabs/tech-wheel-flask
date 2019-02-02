@@ -10,25 +10,19 @@ app = Flask(__name__)
 def home():
     return render_template('index.html')
 
-@app.route('/here-is-your-car', methods=['POST'])
+@app.route('/run-wheel', methods=['POST'])
 def result():
     
-    car_brand  = request.form.get('car_brand')
+    key1  = request.form.get('key1')
+    key2  = request.form.get('key2')
     
-    # You can validate the car brands. If someone is telling the wrong brand name, reply them with the wrong answer
-    
-    address = get_parked_place()
-    
-    ticket_amount = 45
-    
-    user = {
-        'car_brand' : car_brand,
-        'address': address,
-        'ticket_amount' : ticket_amount 
+    result = {
+        'key1' : key1,
+        'key2': key2,
     }
     
     #return content
-    return render_template('result.html', user=user)
+    return render_template('result.html', result=result)
 
 def get_parked_place():
     return '288, Spadina Road'

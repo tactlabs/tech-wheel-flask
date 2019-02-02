@@ -1,15 +1,260 @@
 <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <title>Dude, where is my car?</title>
-  </head>
-  <body>
-    
-        <h4>Dude, where is my car?</h4>
-        
-        Your {{user.car_brand}} Car is parked in : {{user.address}}
-		<br>
-		By the way, you got a ticket of {{user.ticket_amount}}$!
+<html>
+<!--
+	source:
+	https://codepen.io/Aniboaz/pen/ZWgpox
+-->
+<head>
+<title>Roulette Wheel</title>
+<style>
+body,canvas,input {
+	font-family: 'Rubik', 'open-sans-hebrew';
+}
 
-  </body>
-  </html>
+input#spin {
+	background-color: #35C1D6;
+	position: relative;
+	left: 205px;
+	top: 290px;
+	display: block;
+	width: 85px;
+	height: 85px;
+	z-index: 9;
+	border-radius: 25em;
+	border: 2px solid #47d9ef;
+	font-family: 'Rubik', 'open-sans-hebrew';
+	font-size: 24px;
+	box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.3);
+	display: block;
+	-webkit-transition: 0.2s;
+	transition: 0.2s;
+	text-align: center;
+	background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #35C1D6),
+		color-stop(100%, #008db2) );
+	background: -webkit-linear-gradient(top, #35C1D6, #008db2);
+	background: -moz-linear-gradient(top, #35C1D6, #008db2);
+	background: -o-linear-gradient(top, #35C1D6, #008db2);
+	background: linear-gradient(top, #35C1D6, #008db2);
+	background-color: #00a1cb;
+	border-color: #007998;
+	color: white;
+	text-shadow: 0 -1px 1px rgba(0, 40, 50, 0.35);
+}
+
+input#spin:hover,input#spin:focus {
+	background-color: #00a1cb;
+	background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #00c9fe),
+		color-stop(100%, #008db2) );
+	background: -webkit-linear-gradient(top, #00c9fe, #008db2);
+	background: -moz-linear-gradient(top, #00c9fe, #008db2);
+	background: -o-linear-gradient(top, #00c9fe, #008db2);
+	background: linear-gradient(top, #00c9fe, #008db2);
+}
+
+input#spin:active {
+	background: #1495b7;
+	color: #005065;
+}
+
+/*responsiveness test?width:100%; height:100%;*/
+canvas {
+	background-color: ghostwhite;
+}
+
+@media screen and (max-width: 1140px) {
+	input#spin {
+		background-color: #35C1D6;
+		position: relative;
+		left: 120px;
+		top: 200px;
+	}
+}
+
+@media screen and (max-width: 500px) {
+	canvas#canvas {
+		max-width: 100%;
+		min-width: 320px;
+	}
+	input#spin {
+		background-color: #35C1D6;
+		position: relative;
+		top: 200px;
+	}
+}
+}
+</style>
+</head>
+<body>
+
+	<!-- based on https://github.com/JavoByte/rouletteWheel*/--->
+	<input type="button" value="Spin" id='spin' />
+	<canvas id="canvas" width="500" height="500"></canvas>
+
+
+	<script>
+		function resize() {
+
+			var canvas = document.getElementById('canvas');
+			var windowwidth = window.innerWidth
+			var width;
+			var height;
+
+			if (windowwidth < 1140) {
+				//height = window.innerHeight;
+				height = 320;
+				width = 320;
+			} else {
+				width = 500;
+				height = 500;
+			}
+
+			canvas.style.width = width + 'px';
+			canvas.style.height = height + 'px';
+		};
+
+		window.addEventListener('resize', resize, false);
+		var options = [ "Java", "Python", "Javascript", "REST API", "MySQL",
+				"PostgreSQL", "Nodejs", "AngularJS", "ReactJs" ];
+		var coloroptions = [ "#4E63AD", "#9475b0", "#f26722", "#2e9874",
+				"#4E63AD", "#9475b0", "#f26722", "#2e9874", "#40D3D1" ];
+		var imgarray = [
+				"https://www.aniboaz.co.il/Blog/libi/wp-content/uploads/sites/4/2016/04/libi_new_2.png",
+				"https://www.aniboaz.co.il/Blog/libi/wp-content/uploads/sites/4/2016/04/libi_new_2-02.jpg" ];
+		var linka = [ "#" ];
+
+		var startAngle = 110;
+		var arc = Math.PI / (options.length / 2);
+		var spinTimeout = null;
+
+		var spinArcStart = 220;
+		var spinTime = 0;
+		var spinTimeTotal = 0;
+
+		var ctx;
+
+		document.getElementById("spin").addEventListener("click", spin);
+
+		function byte2Hex(n) {
+			var nybHexString = "0123456789ABCDEF";
+			return String(nybHexString.substr((n >> 4) & 0x0F, 1))
+					+ nybHexString.substr(n & 0x0F, 1);
+		}
+
+		function RGB2Color(r, g, b) {
+			return '#' + byte2Hex(r) + byte2Hex(g) + byte2Hex(b);
+		}
+
+		function drawRouletteWheel() {
+
+			var canvas = document.getElementById("canvas");
+			if (canvas.getContext) {
+				var outsideRadius = 200;
+				var textRadius = 150;
+				var insideRadius = 40;
+				ctx = canvas.getContext("2d");
+				ctx.clearRect(0, 0, 500, 500);
+
+				ctx.strokeStyle = "Teal";
+				ctx.lineWidth = 1;
+
+				ctx.font = "bold 18px Rubik, sans-serif";
+
+				for ( var i = 0; i < options.length; i++) {
+					var angle = startAngle + i * arc;
+					//ctx.fillStyle = colors[i] ** getColor(i,options.length) ;
+					ctx.fillStyle = coloroptions[i];
+
+					ctx.beginPath();
+					ctx.arc(250, 250, outsideRadius, angle, angle + arc, false);
+					ctx.arc(250, 250, insideRadius, angle + arc, angle, true);
+					ctx.stroke();
+					ctx.fill();
+					ctx.shadowOffsetX = -10;
+					ctx.shadowOffsetY = -10;
+					ctx.shadowBlur = 30;
+					ctx.shadowColor = "rgba(0,0,0,0.5)";
+					ctx.save();
+					var imageObj = new Image();
+					ctx.fillStyle = "white";
+					ctx.translate(250 + Math.cos(angle + arc / 2) * textRadius,
+							250 + Math.sin(angle + arc / 2) * textRadius);
+					ctx.rotate(angle + arc / 2 + Math.PI / 2);
+					var text = options[i];
+					ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+					ctx.drawImage(imageObj, 5, 20, 40, 40);
+					ctx.restore();
+				}
+
+				//Arrow
+
+				ctx.beginPath();
+				ctx.moveTo(250 - 15, 250 - (outsideRadius + 25));
+				ctx.lineTo(250 + 15, 250 - (outsideRadius + 25));
+				ctx.lineTo(250 + 15, 250 - (outsideRadius - 5));
+				ctx.lineTo(250 + 15, 250 - (outsideRadius - 5));
+				ctx.lineTo(250 + 0, 250 - (outsideRadius - 13));
+				ctx.lineTo(250 - 15, 250 - (outsideRadius - 5));
+				ctx.lineTo(250 - 15, 250 - (outsideRadius - 5));
+				ctx.lineTo(250 - 15, 250 - (outsideRadius + 15));
+				ctx.shadowOffsetX = +10;
+				ctx.shadowOffsetY = 22;
+				ctx.shadowBlur = 20;
+				ctx.shadowColor = "rgba(0,0,0,0.5)";
+				ctx.fillStyle = "white";
+				ctx.fill();
+				ctx.end;
+			}
+		}
+
+		function spin() {
+			spinAngleStart = Math.random() * 10 + 23;
+			spinTime = 0;
+			//spinTimeTotal = Math.random() * 3 + 4 * 200;
+
+			spinTimeTotal = 4000;
+
+			console.log('spinTimeTotal : '+spinTimeTotal);	
+
+			rotateWheel();
+		}
+
+		function rotateWheel() {
+			spinTime += 10;
+			if (spinTime >= spinTimeTotal) {
+				stopRotateWheel();
+				return;
+			}
+			var spinAngle = spinAngleStart
+					- easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+			startAngle += (spinAngle * Math.PI / 180);
+			drawRouletteWheel();
+			spinTimeout = setTimeout('rotateWheel()', 10);
+		}
+
+		function stopRotateWheel() {
+			clearTimeout(spinTimeout);
+			var degrees = startAngle * 180 / Math.PI + 90;
+			var arcd = arc * 180 / Math.PI;
+			var index = Math.floor((360 - degrees % 360) / arcd);
+			ctx.save();
+			ctx.font = "bold 30px Rubik, sans-serif";
+			var text = options[index];
+			ctx.fillStyle = coloroptions[index];
+			ctx.fill();
+			ctx.fillText(text, 180, 22);
+			ctx.restore();
+			
+			//window.location = linka[index];
+		}
+
+		function easeOut(t, b, c, d) {
+			var ts = (t /= d) * t;
+			var tc = ts * t;
+			return b + c * (tc + -3 * ts + 3 * t);
+		}
+		window.onload = function() {
+			drawRouletteWheel();
+		}
+	</script>
+</body>
+</html>

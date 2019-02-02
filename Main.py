@@ -15,10 +15,24 @@ def result():
     
     key1  = request.form.get('key1')
     key2  = request.form.get('key2')
+    key3  = request.form.get('key3')
+    key4  = request.form.get('key4')
+    key5  = request.form.get('key5')
+    key6  = request.form.get('key6')
+    key7  = request.form.get('key7')
+    key8  = request.form.get('key8')
+    key9  = request.form.get('key9')
     
     result = {
         'key1' : key1,
-        'key2': key2,
+        'key2' : key2,
+        'key3' : key3,
+        'key4' : key4,
+        'key5' : key5,
+        'key6' : key6,
+        'key7' : key7,
+        'key8' : key8,
+        'key9' : key9,
     }
     
     #return content
